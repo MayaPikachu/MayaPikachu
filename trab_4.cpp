@@ -32,15 +32,18 @@ class BinarySearchTree {
     int differentWords = 0; // n de palavras diferentes
     int h = 0;              // altura
     int totalCount = 0;     // n palavras total
-    void searchInsert(TreeEntry x, TreePointer &t);
+    void searchInsert(TreeEntry x, TreePointer &t, int &sentinelMoves);
     int folhas(TreePointer &t);
 };
 
-void BinarySearchTree::searchInsert(TreeEntry x) { searchInsert(x, root); }
-
-void BinarySearchTree::searchInsert(TreeEntry x, TreePointer &t) {
-    TreePointer sentinel;
+void BinarySearchTree::searchInsert(TreeEntry x) {
     int sentinelMoves = 0;
+    searchInsert(x, root, sentinelMoves);
+}
+
+void BinarySearchTree::searchInsert(TreeEntry x, TreePointer &t,
+                                    int &sentinelMoves) {
+    TreePointer sentinel;
     if (t == NULL) {
         t = new TreeNode;
         t->entry = x;
@@ -64,7 +67,7 @@ void BinarySearchTree::searchInsert(TreeEntry x, TreePointer &t) {
         sentinel = t;
         sentinelMoves++;
         comp++;
-        searchInsert(x, t->leftNode);
+        searchInsert(x, t->leftNode, sentinelMoves);
         return;
     }
 
@@ -72,7 +75,7 @@ void BinarySearchTree::searchInsert(TreeEntry x, TreePointer &t) {
         comp++;
         sentinel = t;
         sentinelMoves++;
-        searchInsert(x, t->rightNode);
+        searchInsert(x, t->rightNode, sentinelMoves);
         return;
     }
 
