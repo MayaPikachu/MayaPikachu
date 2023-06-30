@@ -8,6 +8,7 @@ typedef string TreeEntry;
 
 class BinarySearchTree {
   public:
+    BinarySearchTree() : root(nullptr) {}
     void searchInsert(TreeEntry x);
     int altura();
     int folhas();
