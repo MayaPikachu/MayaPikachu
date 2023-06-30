@@ -102,6 +102,7 @@ int BinarySearchTree::total() { return totalCount; }
 class AVLTree {
 
   public:
+    AVLTree() : root(nullptr){}
     void searchInsert(TreeEntry x);
     int altura();
     int folhas();
