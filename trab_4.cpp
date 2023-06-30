@@ -57,26 +57,28 @@ void BinarySearchTree::searchInsert(TreeEntry x, TreePointer &t) {
                  // moverá mais vezes que a altura atual da raiz,
                  // apenas ao fazer uma inserção de altura maior.
         }
-
-    } else {
-        if (x < t->entry) {
-            sentinel = t;
-            sentinelMoves++;
-            comp++;
-            searchInsert(x, t->leftNode);
-        } else {
-            if (x > t->entry) {
-                comp++;
-                sentinel = t;
-                sentinelMoves++;
-                searchInsert(x, t->rightNode);
-            } else {
-                comp++;
-                t->count++;
-                totalCount++;
-            }
-        }
+        return;
     }
+
+    if (x < t->entry) {
+        sentinel = t;
+        sentinelMoves++;
+        comp++;
+        searchInsert(x, t->leftNode);
+        return;
+    }
+
+    if (x > t->entry) {
+        comp++;
+        sentinel = t;
+        sentinelMoves++;
+        searchInsert(x, t->rightNode);
+        return;
+    }
+
+    comp++;
+    t->count++;
+    totalCount++;
 }
 
 int BinarySearchTree::altura() { return h; }
@@ -102,7 +104,7 @@ int BinarySearchTree::total() { return totalCount; }
 class AVLTree {
 
   public:
-    AVLTree() : root(nullptr){}
+    AVLTree() : root(nullptr) {}
     void searchInsert(TreeEntry x);
     int altura();
     int folhas();
@@ -151,110 +153,109 @@ void AVLTree::searchInsert(TreeEntry x, TreePointer &pA, bool &h) {
         pA->bal = 0;
         differentWords++;
         totalCount++;
+        return;
     }
 
-    else {
-        if (x < pA->entry) {
+    if (x < pA->entry) {
+        sentinel = pA;
+        sentinelMoves++;
+        comp++;
+        searchInsert(x, pA->leftNode, h);
+        if (h) {
+            switch (pA->bal) {
+            case -1:
+                pA->bal = 0;
+                h = false;
+                break;
+
+            case 0:
+                pA->bal = 1;
+                break;
+
+            case 1:
+                pB = pA->leftNode;
+                if (pB->bal == 1) {
+                    pA->leftNode = pB->rightNode;
+                    pB->rightNode = pA;
+                    pA->bal = 0;
+                    pA = pB;
+
+                } else {
+                    pC = pB->rightNode;
+                    pB->rightNode = pC->leftNode;
+                    pC->leftNode = pB;
+                    pA->leftNode = pC->rightNode;
+                    pC->rightNode = pA;
+                    if (pC->bal == 1) {
+                        pA->bal = -1;
+                    } else {
+                        pA->bal = 0;
+                    }
+
+                    if (pC->bal == -1) {
+                        pA->bal = +1;
+                    } else {
+                        pB->bal = 0;
+                    }
+
+                    pA = pC;
+                }
+                pA->bal = 0;
+                h = false;
+                sentinelMoves--;
+                rot++;
+            }
+        }
+    } else {
+        if (x > pA->entry) {
             sentinel = pA;
             sentinelMoves++;
             comp++;
-            searchInsert(x, pA->leftNode, h);
+            searchInsert(x, pA->rightNode, h);
             if (h) {
                 switch (pA->bal) {
-                case -1:
+                case 1:
                     pA->bal = 0;
                     h = false;
                     break;
 
                 case 0:
-                    pA->bal = 1;
+                    pA->bal = -1;
                     break;
 
-                case 1:
-                    pB = pA->leftNode;
-                    if (pB->bal == 1) {
-                        pA->leftNode = pB->rightNode;
-                        pB->rightNode = pA;
+                case -1:
+                    pB = pA->rightNode;
+                    if (pB->bal == -1) {
+                        pA->rightNode = pB->leftNode;
+                        pB->leftNode = pA;
                         pA->bal = 0;
                         pA = pB;
-
                     } else {
-                        pC = pB->rightNode;
-                        pB->rightNode = pC->leftNode;
-                        pC->leftNode = pB;
-                        pA->leftNode = pC->rightNode;
-                        pC->rightNode = pA;
-                        if (pC->bal == 1) {
-                            pA->bal = -1;
+                        pC = pB->leftNode;
+                        pB->leftNode = pC->rightNode;
+                        pC->rightNode = pB;
+                        pA->rightNode = pC->leftNode;
+                        pC->leftNode = pA;
+                        if (pC->bal == -1) {
+                            pA->bal = 1;
                         } else {
                             pA->bal = 0;
                         }
-
-                        if (pC->bal == -1) {
-                            pA->bal = +1;
+                        if (pC->bal == +1) {
+                            pB->bal = -1;
                         } else {
                             pB->bal = 0;
                         }
-
                         pA = pC;
                     }
+                    rot++;
+                    sentinelMoves--;
                     pA->bal = 0;
                     h = false;
-                    sentinelMoves--;
-                    rot++;
                 }
             }
         } else {
-            if (x > pA->entry) {
-                sentinel = pA;
-                sentinelMoves++;
-                comp++;
-                searchInsert(x, pA->rightNode, h);
-                if (h) {
-                    switch (pA->bal) {
-                    case 1:
-                        pA->bal = 0;
-                        h = false;
-                        break;
-
-                    case 0:
-                        pA->bal = -1;
-                        break;
-
-                    case -1:
-                        pB = pA->rightNode;
-                        if (pB->bal == -1) {
-                            pA->rightNode = pB->leftNode;
-                            pB->leftNode = pA;
-                            pA->bal = 0;
-                            pA = pB;
-                        } else {
-                            pC = pB->leftNode;
-                            pB->leftNode = pC->rightNode;
-                            pC->rightNode = pB;
-                            pA->rightNode = pC->leftNode;
-                            pC->leftNode = pA;
-                            if (pC->bal == -1) {
-                                pA->bal = 1;
-                            } else {
-                                pA->bal = 0;
-                            }
-                            if (pC->bal == +1) {
-                                pB->bal = -1;
-                            } else {
-                                pB->bal = 0;
-                            }
-                            pA = pC;
-                        }
-                        rot++;
-                        sentinelMoves--;
-                        pA->bal = 0;
-                        h = false;
-                    }
-                }
-            } else {
-                pA->count++;
-            }
+            pA->count++;
         }
     }
     if (sentinelMoves > height) {
