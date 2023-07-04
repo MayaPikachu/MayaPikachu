@@ -285,9 +285,142 @@ int AVLTree::diff() { return differentWords; }
 int AVLTree::total() { return totalCount; }
 int AVLTree::comparacoes() { return comp; }
 
+void die(const string &msg) {
+    cout << msg << ": Oops!\n";
+    exit(1);
+}
+
+template <typename Entry> class AVL {
+  public:
+    void searchInsert(Entry val) { root = searchInsert(root, val); }
+    void print() {
+        print(root, 0);
+        cout << "\n-----------------------------------\n\n";
+    }
+
+  private:
+    struct AVLNode {
+        Entry val;
+        int height = 1;
+        AVLNode *left = nullptr;
+        AVLNode *right = nullptr;
+        void updateHeight() {
+            height = 1;
+            if (left && left->height + 1 > height) {
+                height = left->height + 1;
+            }
+            if (right && right->height + 1 > height) {
+                height = right->height + 1;
+            }
+        }
+    };
+
+    void print(AVLNode *root, int depth) {
+        if (!root) {
+            return;
+        }
+        print(root->right, depth + 1);
+        for (int i = 0; i < depth; i++) {
+            cout << "    ";
+        }
+        cout << root->val << endl;
+        print(root->left, depth + 1);
+    }
+    AVLNode *leftRotate(AVLNode *root) {
+        if (!root) {
+            die("leftRotate");
+        }
+        if (!root->right) {
+            die("leftRotate");
+        }
+        AVLNode *newRoot = root->right;
+        root->right = newRoot->left;
+        newRoot->left = root;
+        root->updateHeight();
+        return newRoot;
+    }
+    AVLNode *rightRotate(AVLNode *root) {
+        if (!root) {
+            die("rightRotate");
+        }
+        if (!root->left) {
+            die("rightRotate");
+        }
+        AVLNode *newRoot = root->left;
+        root->left = newRoot->right;
+        newRoot->right = root;
+        root->updateHeight();
+        return newRoot;
+    }
+    AVLNode *leftRightRotate(AVLNode *root) {
+        if (!root->left) {
+            die("leftRightRotate");
+        }
+        root->left = leftRotate(root->left);
+        return rightRotate(root);
+    }
+    AVLNode *rightLeftRotate(AVLNode *root) {
+        if (!root->right) {
+            die("rightRotate");
+        }
+        root->right = rightRotate(root->right);
+        return leftRotate(root);
+    }
+    int balanceFactor(AVLNode *root) {
+        if (!root) {
+            return 0;
+        }
+        int left = 0;
+        int right = 0;
+        if (root->left) {
+            left = root->left->height;
+        }
+        if (root->right) {
+            right = root->right->height;
+        }
+        return left - right;
+    }
+    AVLNode *searchInsert(AVLNode *root, Entry val) {
+        if (!root) {
+            count++;
+            root = new AVLNode;
+            root->val = val;
+            return root;
+        }
+        if (root->val == val) {
+            return root;
+        }
+        if (root->val > val) {
+            root->left = searchInsert(root->left, val);
+            root->updateHeight();
+        } else {
+            root->right = searchInsert(root->right, val);
+            root->updateHeight();
+        }
+        int bf = balanceFactor(root);
+        if (bf > 1) {
+            if (balanceFactor(root->left) > 0) {
+                root = rightRotate(root);
+            } else {
+                root = leftRightRotate(root);
+            }
+        } else if (bf < -1) {
+            if (balanceFactor(root->right) < 0) {
+                root = leftRotate(root);
+            } else {
+                root = rightLeftRotate(root);
+            }
+        }
+        return root;
+    }
+
+    AVLNode *root = nullptr;
+    int count = 0;
+};
+
 int main() {
     BinarySearchTree bst;
-    AVLTree avl;
+    AVL<string> avl;
     std::string word;
     ifstream theInput("mam-na-np-lo.txt");
     // ler cada palavra do arquivo e inserir na ABB e na AVL
@@ -296,6 +429,7 @@ int main() {
         avl.searchInsert(word);
     }
     theInput.close();
+    avl.print();
     ofstream theOutput("Info_ABB.txt");
     theOutput << "Palavras distintas " << bst.diff()
               << " // Número total de palavras: " << bst.total()
