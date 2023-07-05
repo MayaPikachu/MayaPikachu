@@ -292,7 +292,20 @@ void die(const string &msg) {
 
 template <typename Entry> class AVL {
   public:
-    void searchInsert(Entry val) { root = searchInsert(root, val); }
+    void searchInsert(Entry val) {
+        root = searchInsert(root, val);
+        totalWords++;
+    }
+    int altura() {
+        if (root) {
+            return root->height - 1;
+        }
+        return -1;
+    }
+    int diff() { return count; }
+    int comparacoes() { return comps; }
+    int total() { return totalWords; }
+
     void print() {
         print(root, 0);
         cout << "\n-----------------------------------\n\n";
@@ -314,6 +327,11 @@ template <typename Entry> class AVL {
             }
         }
     };
+
+    AVLNode *root = nullptr;
+    int count = 0;
+    int comps = 0;
+    int totalWords = 0;
 
     void print(AVLNode *root, int depth) {
         if (!root) {
@@ -387,9 +405,11 @@ template <typename Entry> class AVL {
             root->val = val;
             return root;
         }
+        comps++;
         if (root->val == val) {
             return root;
         }
+        comps++;
         if (root->val > val) {
             root->left = searchInsert(root->left, val);
             root->updateHeight();
@@ -413,9 +433,6 @@ template <typename Entry> class AVL {
         }
         return root;
     }
-
-    AVLNode *root = nullptr;
-    int count = 0;
 };
 
 int main() {
@@ -429,11 +446,17 @@ int main() {
         avl.searchInsert(word);
     }
     theInput.close();
-    avl.print();
     ofstream theOutput("Info_ABB.txt");
     theOutput << "Palavras distintas " << bst.diff()
               << " // Número total de palavras: " << bst.total()
               << " // Altura: " << bst.altura()
               << " // Comparacoes: " << bst.comparacoes() << endl;
+    theOutput.close();
+    theOutput.open("Info_AVL.txt");
+    theOutput << "Palavras distintas " << avl.diff()
+              << " // Número total de palavras: " << avl.total()
+              << " // Altura: " << avl.altura()
+              << " // Comparacoes: " << avl.comparacoes() << endl;
+    theOutput.close();
     return 0;
 }
